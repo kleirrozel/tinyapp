@@ -29,3 +29,12 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+
+app.get("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;   //tip: define your variables before passing them in templateVars
+  const longURL = urlDatabase[shortURL];  //tip: define your variables before passing them in templateVars
+
+  const templateVars = { shortURL, longURL };
+  res.render("urls_show", templateVars);
+});
+
