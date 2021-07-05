@@ -9,23 +9,22 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const generateRandomString = () => {
+  return Math.random().toString(20).substr(2, 6);
+};
+
 const bodyParser = require("body-parser");
+
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
-
-function generateRandomString() {
-  return Math.random().toString(20).substr(2, 6)
-};
-// console.log(generateRandomString());
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
 app.get("/", (req, res) => {
   res.send("Hello!");
-});
-
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -46,18 +45,31 @@ app.get("/urls/new", (req, res) => { // Note: the order of route definition matt
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;   // Tip: define variables before passing them in templateVars
-  const longURL = urlDatabase[shortURL];  // Tip: define variables before passing them in templateVars
-
+  const shortURL = req.params.shortURL; 
+  const longURL = urlDatabase[shortURL];
   const templateVars = { shortURL, longURL };
+
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL; 
+  const longURL = urlDatabase[shortURL];
+
+  res.redirect(longURL);
+});
+
 app.post("/urls", (req, res) => {
+  console.log(req.body);  // To Do: Log the POST request body to the console
+  
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
+  
   urlDatabase[shortURL] = longURL;
-
-  console.log(req.body);  // Log the POST request body to the console
-  res.redirect('/urls/${shortURL}')  ;      // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${shortURL}`);
 });
+
+// EDGE CASES:
+// What would happen if a client requests a non-existent shortURL?
+// What happens to the urlDatabase when the server is restarted?
+// What type of status code do our redirects have? What does this status code mean?
