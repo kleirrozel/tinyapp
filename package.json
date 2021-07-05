@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/kleirrozel/tinyapp/issues"
   },
-  "homepage": "https://github.com/kleirrozel/tinyapp#readme"
+  "homepage": "https://github.com/kleirrozel/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
