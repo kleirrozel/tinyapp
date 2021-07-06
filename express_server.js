@@ -73,3 +73,11 @@ app.post("/urls", (req, res) => {
 // What would happen if a client requests a non-existent shortURL?
 // What happens to the urlDatabase when the server is restarted?
 // What type of status code do our redirects have? What does this status code mean?
+
+// Delete button
+app.post("/urls/:shortURL/delete", (req, res) => { 
+  const shortURL = req.params.shortURL; 
+  
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
+});
