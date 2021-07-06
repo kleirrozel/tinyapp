@@ -55,7 +55,9 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL; 
   const longURL = urlDatabase[shortURL];
   const templateVars = { shortURL, longURL };
-
+  console.log(`longurl ${longURL}`)
+  console.log(`shorturl ${shortURL}`)
+  console.table(`urldatabase ${urlDatabase}`)
   res.render("urls_show", templateVars);
 });
 
@@ -90,10 +92,19 @@ app.post("/urls", (req, res) => {
 // What type of status code do our redirects have? What does this status code mean?
 
 
-// Adds a delete button
+// Adds a delete button and redirects back to /urls page
 app.post("/urls/:shortURL/delete", (req, res) => { 
   const shortURL = req.params.shortURL; 
   
   delete urlDatabase[shortURL];
+  res.redirect("/urls");
+});
+
+
+// Adds an edit button and redirects back to /urls page
+app.post("/urls/:id", (req, res) => { 
+  const id = req.params.id;
+  urlDatabase[id] = req.body.longURLNew
+  
   res.redirect("/urls");
 });
