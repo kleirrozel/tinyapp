@@ -1,27 +1,26 @@
 const express = require("express");
-
 const app = express();
-
-const PORT = 8080; // default port 8080
-
+const PORT = 8080;
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
 const generateRandomString = () => {
   return Math.random().toString(20).substr(2, 6);
 };
-
 const bodyParser = require("body-parser");
-
 app.use(bodyParser.urlencoded({extended: true}));
 
+
 app.set("view engine", "ejs");
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+// GET
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -35,15 +34,23 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+
+// Route for urls
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
+  
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => { // Note: the order of route definition matters!
+
+// Route handler that renders the page with the form
+// Note: Needs to be defined before /urls/:id
+app.get("/urls/new", (req, res) => { 
   res.render("urls_new");
 });
 
+
+// Displays a single URL and its shortened form
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL; 
   const longURL = urlDatabase[shortURL];
@@ -52,6 +59,8 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+
+// Redirects to longURL
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL; 
   const longURL = urlDatabase[shortURL];
@@ -59,8 +68,13 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+
+// POST
+
+// Once a form is submitted from GET /urls/new a request will be made to POST /urls
+// Saves the shortURL-longURL key-value pair to the urlDatabase
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // To Do: Log the POST request body to the console
+  // console.log(req.body);  // This will: Log the POST request body to the console
   
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
@@ -69,12 +83,14 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+
 // EDGE CASES:
 // What would happen if a client requests a non-existent shortURL?
 // What happens to the urlDatabase when the server is restarted?
 // What type of status code do our redirects have? What does this status code mean?
 
-// Delete button
+
+// Adds a delete button
 app.post("/urls/:shortURL/delete", (req, res) => { 
   const shortURL = req.params.shortURL; 
   
