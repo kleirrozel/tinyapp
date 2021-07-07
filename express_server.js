@@ -29,13 +29,24 @@ const usersDB = {
   }
 };
 
-/* Functions for Random Strings */
+/* Functions */
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
 const generateUserID = () => {
-  return "TinyUser_" + Math.random().toString(36).substr(2, 6);
+  return "tinyuser_" + Math.random().toString(36).substr(2, 6);
+};
+
+const authenticate = (emailToCheck, usersObject) => {
+  for (let user in usersObject) {
+    if (usersObject.hasOwnProperty(user)) {
+      if (emailToCheck === usersObject[user]["email"]) {
+      return user;
+      }
+    }
+  }
+  return undefined;
 };
 
 /* Server Start-up */
@@ -89,7 +100,7 @@ app.get("/register", (req, res) => {
   res.render("registration_index");
 });
 
-/* URLS */
+/* POST URLS */
 
 // Saves the shortURL-longURL key-value pair to the urlDatabase
 app.post("/urls", (req, res) => {
@@ -132,8 +143,14 @@ app.post("/register", (req, res) => {
   const userID = generateUserID();
   const email = req.body.email;
   const password = req.body.password;
-  usersDB[userID] = { id: userID, email, password }
 
+  if (email === '' && password === ''){
+    res.status(400).send('Oops! Looks like you forgot to include your email and password.')
+  } else if (authenticate(email, usersDB)) {
+    res.status(400).send('Oops! Your email is already registered.')
+  } else {
+  usersDB[userID] = { id: userID, email, password };
+  }
   res.cookie("user_id", userID);
   res.redirect("/urls");
 });
