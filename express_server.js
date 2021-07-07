@@ -112,8 +112,14 @@ app.post("/urls/:id", (req, res) => {
 });
 
 
-// Allows usernames to be logged in and remembered using cookies
+// Logs in and allows usernames to be remembered
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
+// Logs out and clears cookies
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
   res.redirect("/urls");
 });
