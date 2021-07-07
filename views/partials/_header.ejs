@@ -8,12 +8,14 @@
     <!--Header Navigation-->
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
+        <a class="nav-item nav-link" href="/">Home</a>
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <a class="nav-item nav-link" href="/register">Register</a>
       </div>
     </div>
-    <!--Username Login and Logout Button-->
-    <% if (username) { %>
+    <!--User Login and Logout Button-->
+    <% if (users) { %>
       <div style="           
         display: flex;
         justify-content: center;
@@ -21,7 +23,7 @@
         align-items: center;
         padding-right: 5px
       ">
-        <span>Logged In As: <%= username %>!</span> 
+        <span>Logged In As: <%= users.email %>!</span> 
       </div>
       <div>
         <form class="form-inline" action="/logout" method="POST">
@@ -37,7 +39,7 @@
         padding-left: 5px
         ">
         <form class="form-inline" action="/login" method="POST">
-          <input class="form-control mr-sm-2" type="username" name="username" placeholder="Username"   aria-label="Username">
+          <input class="form-control mr-sm-2" type="users" name="users" placeholder="User"   aria-label="User">
             <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Login</button>
         </form>
       </div>
