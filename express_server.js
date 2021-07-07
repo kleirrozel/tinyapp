@@ -32,6 +32,8 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// GET
+
 // Route for urls
 app.get("/urls", (req, res) => {
   const templateVars = { 
@@ -63,6 +65,13 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 });
+
+// Route for registration page
+app.get("/register", (req, res) => {
+  res.render("registration_index");
+});
+
+// POST
 
 // Once a form is submitted from GET /urls/new a request will be made to POST /urls
 // Saves the shortURL-longURL key-value pair to the urlDatabase
@@ -98,3 +107,13 @@ app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls");
 });
+
+// Users registration page
+// app.post("/register", (req, res) => {
+//   const email = req.body.email;
+//   const password = req.body.password;
+//   const templateVars = { email, password };
+
+//   res.redirect("/urls");
+// });
+// cookie for userid
