@@ -15,19 +15,21 @@
     <!--Username Login and Logout Button-->
     <% if (username) { %>
       <div style="           
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      align-items: center;
-      padding-right: 5px
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: center;
+        padding-right: 5px
       ">
-        <span>Logged In As:   <%= username %>    !         </span>
-          <form class="form-inline" action="/logout" method="POST">
-            <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Logout</button>
-          </form>
+        <span>Logged In As: <%= username %>!</span> 
       </div>
-      <% } else { %>
-        <div style="           
+      <div>
+        <form class="form-inline" action="/logout" method="POST">
+          <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Logout</button>
+        </form>
+      </div>  
+    <% } else { %>
+      <div style="           
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
@@ -39,6 +41,5 @@
             <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Login</button>
         </form>
       </div>
-      <% }; %>
-    </div>
+    <% }; %>
 </header>
