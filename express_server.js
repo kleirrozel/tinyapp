@@ -1,24 +1,21 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
 const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
 
 /* 
-Server start-up 
+Middleware
 */
-app.listen(PORT, () => {
-  console.log(`TinyApp is active on port ${PORT}!`);
-});
-
-/* 
-Middleware 
-*/
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
+const bcrypt = require("bcrypt");
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+
+const cookieSession = require("cookie-session");
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 /* 
 Database 
@@ -95,8 +92,8 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = {
     // urls: urlDatabase,
-    urls: urlsForUser(req.cookies["user_id"]),
-    users: usersDB[req.cookies["user_id"]]
+    urls: urlsForUser(req.session.user_id),
+    users: usersDB[req.session.user_id]
   };
   res.render("urls_index", templateVars);
 });
@@ -106,9 +103,9 @@ app.get("/urls", (req, res) => {
 // NEW case: if user is logged in, respond with render of urls_new, otherwise, redirect to login
 app.get("/urls/new", (req, res) => {
   const templateVars = { 
-    users: usersDB[req.cookies["user_id"]] 
+    users: usersDB[req.session.user_id] 
   };
-  if (!req.cookies["user_id"]) { 
+  if (!req.session.user_id) { 
     res.redirect("/login");
   } else {
     res.render("urls_new", templateVars);
@@ -118,7 +115,7 @@ app.get("/urls/new", (req, res) => {
 // Route to registration page
 app.get("/register", (req, res) => {
   const templateVars = { 
-    users: usersDB[req.cookies["user_id"]] 
+    users: usersDB[req.session.user_id] 
   };
   res.render("registration_index", templateVars);
 });
@@ -126,7 +123,7 @@ app.get("/register", (req, res) => {
 // Route to new login page
 app.get("/login", (req, res) => {
   const templateVars = { 
-    users: usersDB[req.cookies["user_id"]] 
+    users: usersDB[req.session.user_id] 
   };
   res.render("login_index", templateVars);
 });
@@ -139,7 +136,7 @@ Shorten URL and Redirect to longURL
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
-  const users = usersDB[req.cookies["user_id"]];
+  const users = usersDB[req.session.user_id];
   const urlUserID = urlDatabase[shortURL].userID;
   const templateVars = { shortURL, longURL, users, urlUserID};
   res.render("urls_show", templateVars);
@@ -167,7 +164,7 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { 
     longURL, 
-    users: usersDB[req.cookies["user_id"]] 
+    users: usersDB[req.session.user_id] 
   };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -175,7 +172,7 @@ app.post("/urls", (req, res) => {
 // Only owners of the url can delete the url they created
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const userURLs = urlsForUser(userID);
 
   if (Object.keys(userURLs).includes(shortURL)) {
@@ -189,7 +186,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // Only owners of the url can edit the url they created
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const userURLs = urlsForUser(userID);
 
   if (Object.keys(userURLs).includes(id)) {
@@ -220,7 +217,7 @@ app.post("/register", (req, res) => {
       password: bcrypt.hashSync(password, 10) 
     };
   }
-  res.cookie("user_id", userID);
+  req.session.user_id = userID;
   res.redirect("/urls");
 });
 
@@ -229,19 +226,26 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = findUserByEmail(email);
-
+  console.log(`this is from line 230 ${user}`)
   if (!user) {
     res.status(403).render("error403_index");x
   } else if (!bcrypt.compareSync(password, usersDB[user]["password"])) {
     res.status(403).render("error403_index");
   } else {
-    res.cookie("user_id", user);
+    req.session.user_id = user.id;
     res.redirect("/urls");
   }
 });
 
 // Logout handler which clears cookies
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/urls");
+});
+
+/* 
+Server start-up 
+*/
+app.listen(PORT, () => {
+  console.log(`TinyApp is active on port ${PORT}!`);
 });
