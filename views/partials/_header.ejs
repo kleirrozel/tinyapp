@@ -11,7 +11,6 @@
         <a class="nav-item nav-link" href="/">Home</a>
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <a class="nav-item nav-link" href="/register">Register</a>
       </div>
     </div>
     <!--User Login and Logout Button-->
@@ -36,12 +35,18 @@
         justify-content: center;
         flex-wrap: wrap;
         align-items: center;
-        padding-left: 5px
-        ">
-        <form class="form-inline" action="/login" method="POST">
-          <input class="form-control mr-sm-2" type="users" name="users" placeholder="User"   aria-label="User">
-            <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Login</button>
-        </form>
+        padding: 5px
+      ">
+          <a class="btn btn-outline-dark my-2 my-sm-0" href="/register" role="button">Register</a>
+      </div>
+      <div style="           
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 5px
+      ">
+          <a class="btn btn-outline-dark my-2 my-sm-0" href="/login" role="button">Login</a>
       </div>
     <% }; %>
 </header>
