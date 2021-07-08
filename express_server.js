@@ -38,10 +38,10 @@ const generateUserID = () => {
   return "tinyuser_" + Math.random().toString(36).substr(2, 6);
 };
 
-const authenticate = (emailToCheck, usersObject) => {
-  for (let user in usersObject) {
-    if (usersObject.hasOwnProperty(user)) {
-      if (emailToCheck === usersObject[user]["email"]) {
+const findUserByEmail = (emailToCheck) => {
+  for (let user in usersDB) {
+    if (usersDB.hasOwnProperty(user)) {
+      if (emailToCheck === usersDB[user]["email"]) {
       return user;
       }
     }
@@ -97,7 +97,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Route for registration page
 app.get("/register", (req, res) => {
-  res.render("registration_index");
+  res.render("registration_index", {users: null});
+});
+
+// Route for new login page
+app.get("/login", (req, res) => {
+  res.render("login_index", {users: null});
 });
 
 /* POST URLS */
@@ -124,19 +129,9 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-/* LOG in / LOG out / Register */
-
-// Logs in and allows usernames to be remembered through cookies
-app.post("/login", (req, res) => {
-  res.cookie("user_id", usersDB.email);
-  res.redirect("/urls");
-});
-
-// Logs out and clears cookies
-app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
-  res.redirect("/urls");
-});
+/* 
+Register / LOG in / LOG out 
+*/
 
 // Registration handler
 app.post("/register", (req, res) => {
@@ -145,12 +140,35 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
 
   if (email === '' && password === ''){
-    res.status(400).send('Oops! Looks like you forgot to include your email and password.')
-  } else if (authenticate(email, usersDB)) {
-    res.status(400).send('Oops! Your email is already registered.')
+    res.status(400).send(`Oops! Looks like you forgot to include your email and password.`)
+  } else if (findUserByEmail(email)) {
+    res.status(400).send(`Oops! Your email is already registered. Please log in instead.`)
   } else {
   usersDB[userID] = { id: userID, email, password };
   }
   res.cookie("user_id", userID);
+  res.redirect("/urls");
+});
+
+
+// Login handler
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = findUserByEmail(email);
+  
+  if (!user) { // If a user with that e-mail cannot be found
+    res.status(403).send(`Oops! I can't find your email. Are you sure you're a registered TinyApp user?`)
+  } else if (password !== user.password) { // Registered but password is wrong
+    res.status(403).send(`Oops! Your password doesn't match our records. Please try again.`)
+  } else { // set user_id cookie with the matching user's random id
+    res.cookie("user_id", user.id);
+    res.redirect("/urls");
+  }
+});
+
+// Logsout handler which clears cookies
+app.post("/logout", (req, res) => {
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
