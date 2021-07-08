@@ -23,6 +23,12 @@
         </tr>
       </thead>
       <tbody>
+        <!--Prompt that users need to login in order to access page-->
+        <% if (!users) { %>
+          <div class="alert alert-warning" role="alert">
+            Oh no! Looks like you need to <a href="/login" class="alert-link">login</a> before you can take a look at that!
+          </div>
+        <% } else { %>
         <% for(let url in urls) { %>
           <tr>
             <!--Delete Button-->
@@ -44,6 +50,7 @@
                 </a>
             </td>
           </tr>
+        <% } %>
         <% } %>
       </tbody>
     </table>
