@@ -3,7 +3,7 @@
 <head>
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>URL - TinyApp Example</title>
+  <title>Tiny-Fied URL</title>
 </head>
 <body>
   <%- include('partials/_header') %>
@@ -11,9 +11,16 @@
     <div class="card-header"></div>
       <!-- Create short link button -->
       <div class="card-body">
+        <!--Prompt that users need to login in order to access page-->
+        <% if (users === urlUserID) { %>
+          <div class="alert alert-warning" role="alert">
+            Oh no! Looks like you need to <a href="/login" class="alert-link">login</a> before you can take a look at that!
+          </div>
+        <% } else { %>
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
+      <% } %>
   </div>
   <!-- Edit link button -->
   <div class="card text-center">
