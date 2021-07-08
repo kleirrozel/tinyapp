@@ -159,10 +159,10 @@ app.post("/login", (req, res) => {
   
   if (!user) { // If a user with that e-mail cannot be found
     res.status(403).send(`Oops! I can't find your email. Are you sure you're a registered TinyApp user?`)
-  } else if (password !== user.password) { // Registered but password is wrong
+  } else if (password !== usersDB[user]['password']) { // Registered but password is wrong
     res.status(403).send(`Oops! Your password doesn't match our records. Please try again.`)
   } else { // set user_id cookie with the matching user's random id
-    res.cookie("user_id", user.id);
+    res.cookie("user_id", user);
     res.redirect("/urls");
   }
 });
