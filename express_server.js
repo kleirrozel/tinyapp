@@ -57,7 +57,7 @@ const generateUserID = () => {
   return "tinyuser_" + Math.random().toString(36).substr(2, 6);
 };
 
-const findUserByEmail = (emailToCheck) => {
+const findUserByEmail = (emailToCheck, usersDB) => {
   for (let user in usersDB) {
       if (usersDB[user]["email"] === emailToCheck) {
         return user;
@@ -187,10 +187,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const userID = req.session.user_id;
-  const userURLs = urlsForUser(userID);
+  const userURLs = urlsForUser(userID, urlDatabase);
 
   if (Object.keys(userURLs).includes(id)) {
-    urlDatabase[id] = req.body.longURLNew;
+    urlDatabase[id].longURL = req.body.longURLNew;
     res.redirect("/urls");
   } else {
     res.sendStatus(401);
