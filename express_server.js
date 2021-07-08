@@ -3,7 +3,12 @@ const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 
-const { findUserByEmail, usersDB } = require("./helpers");
+const { findUserByEmail,
+  usersDB,
+  urlDatabase,
+  generateRandomString,
+  generateUserID,
+  urlsForUser } = require("./helpers");
 
 const app = express();
 const PORT = 8080;
@@ -17,46 +22,10 @@ app.use(cookieSession({
   keys: ['key1', 'key2']
 }));
 
-/* 
-Database 
-*/
-// URL
-const urlDatabase = {
-  b6UTxQ: {
-      longURL: "https://www.tsn.ca",
-      userID: "aJ48lW"
-  },
-  i3BoGr: {
-      longURL: "https://www.google.ca",
-      userID: "aJ48lW"
-  }
-};
-
-/* 
-Functions 
-*/
-const generateRandomString = () => {
-  return Math.random().toString(36).substr(2, 6);
-};
-
-const generateUserID = () => {
-  return "tinyuser_" + Math.random().toString(36).substr(2, 6);
-};
-
-const urlsForUser = (id) => { //Returns an object of urls specific to the userID
-  let userURLs = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].users && urlDatabase[shortURL].users.id === id) {
-      userURLs[shortURL] = urlDatabase[shortURL].longURL;
-    }
-  }
-  return userURLs;
-};
-
 /*
 GET: URL Routes
 */
-// Home/landing page
+
 app.get("/urls.json", (req, res) => {
   res.json(urlsDatabase);
 });
@@ -68,7 +37,6 @@ app.get("/", (req, res) => {
 // Route to urls
 app.get("/urls", (req, res) => {
   const templateVars = {
-    // urls: urlDatabase,
     urls: urlsForUser(req.session.user_id),
     users: usersDB[req.session.user_id]
   };
@@ -77,7 +45,7 @@ app.get("/urls", (req, res) => {
 
 // Route to page that creates new urls
 // Note: Needs to be defined before /urls/:id
-// NEW case: if user is logged in, respond with render of urls_new, otherwise, redirect to login
+// If user is logged in, respond with render of urls_new, otherwise, redirect to login
 app.get("/urls/new", (req, res) => {
   const templateVars = { 
     users: usersDB[req.session.user_id] 

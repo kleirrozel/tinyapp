@@ -11,6 +11,17 @@ const usersDB = {
   }
 };
 
+const urlDatabase = {
+  b6UTxQ: {
+      longURL: "https://www.tsn.ca",
+      userID: "aJ48lW"
+  },
+  i3BoGr: {
+      longURL: "https://www.google.ca",
+      userID: "aJ48lW"
+  }
+};
+
 const findUserByEmail = (emailToCheck) => {
   
   for (let userID in usersDB) {
@@ -21,7 +32,29 @@ const findUserByEmail = (emailToCheck) => {
   return false;
 };
 
+const generateRandomString = () => {
+  return Math.random().toString(36).substr(2, 6);
+};
+
+const generateUserID = () => {
+  return "tinyuser_" + Math.random().toString(36).substr(2, 6);
+};
+
+const urlsForUser = (id) => { //Returns an object of urls specific to the userID
+  let userURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].users && urlDatabase[shortURL].users.id === id) {
+      userURLs[shortURL] = urlDatabase[shortURL].longURL;
+    }
+  }
+  return userURLs;
+};
+
 module.exports = {
   findUserByEmail,
-  usersDB
+  usersDB,
+  urlDatabase,
+  generateRandomString,
+  generateUserID,
+  urlsForUser
 };
