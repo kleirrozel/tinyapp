@@ -90,19 +90,32 @@ app.get("/urls", (req, res) => {
 
 // Route to page that creates new urls
 // Note: Needs to be defined before /urls/:id
+// NEW case: if user is logged in, respond with render of urls_new, otherwise, redirect to login
 app.get("/urls/new", (req, res) => {
-  const templateVars = { users: usersDB[req.cookies["user_id"]] };
-  res.render("urls_new", templateVars);
+  const templateVars = { 
+    users: usersDB[req.cookies["user_id"]] 
+  };
+  if (!req.cookies[req.cookies["user_id"]]) {
+    res.redirect("/login");
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 // Route to registration page
 app.get("/register", (req, res) => {
-  res.render("registration_index", {users: null});
+  const templateVars = { 
+    users: usersDB[req.cookies["user_id"]] 
+  };
+  res.render("registration_index", templateVars);
 });
 
 // Route to new login page
 app.get("/login", (req, res) => {
-  res.render("login_index", {users: null});
+  const templateVars = { 
+    users: usersDB[req.cookies["user_id"]] 
+  };
+  res.render("login_index", templateVars);
 });
 
 /*
@@ -122,7 +135,12 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  res.redirect(longURL);
+
+  if (longURL === undefined) {
+    res.send(302);
+  } else {
+    res.redirect(longURL);
+  }
 });
 
 /*
@@ -133,7 +151,10 @@ POST URLS
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = { 
+    longURL, 
+    users: usersDB[req.cookies["user_id"]] 
+  };
   res.redirect(`/urls/${shortURL}`);
 });
 
