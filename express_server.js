@@ -1,17 +1,17 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
+const bodyParser = require("body-parser");
+const cookieSession = require("cookie-session");
+
+const { findUserByEmail, usersDB } = require("./helpers");
+
 const app = express();
 const PORT = 8080;
+
 app.set("view engine", "ejs");
 
-/* 
-Middleware
-*/
-const bcrypt = require("bcrypt");
-
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-const cookieSession = require("cookie-session");
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
@@ -32,20 +32,6 @@ const urlDatabase = {
   }
 };
 
-// Users
-const usersDB = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-};
-
 /* 
 Functions 
 */
@@ -55,15 +41,6 @@ const generateRandomString = () => {
 
 const generateUserID = () => {
   return "tinyuser_" + Math.random().toString(36).substr(2, 6);
-};
-
-const findUserByEmail = (emailToCheck, usersDB) => {
-  for (let user in usersDB) {
-      if (usersDB[user]["email"] === emailToCheck) {
-        return user;
-      }
-    }
-  return undefined;
 };
 
 const urlsForUser = (id) => { //Returns an object of urls specific to the userID
@@ -216,6 +193,7 @@ app.post("/register", (req, res) => {
       email, 
       password: bcrypt.hashSync(password, 10) 
     };
+    console.log(usersDB)
   }
   req.session.user_id = userID;
   res.redirect("/urls");
@@ -226,10 +204,10 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = findUserByEmail(email);
-  console.log(`this is from line 230 ${user}`)
+
   if (!user) {
-    res.status(403).render("error403_index");x
-  } else if (!bcrypt.compareSync(password, usersDB[user]["password"])) {
+    res.status(403).render("error403_index");
+  } else if (!bcrypt.compareSync(password, user.password)) {
     res.status(403).render("error403_index");
   } else {
     req.session.user_id = user.id;
