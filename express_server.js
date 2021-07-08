@@ -141,7 +141,13 @@ app.get("/urls/:shortURL", (req, res) => {
   const users = usersDB[req.cookies["user_id"]];
   const urlUserID = urlDatabase[shortURL].userID;
   const templateVars = { shortURL, longURL, users, urlUserID};
-  res.render("urls_show", templateVars);
+  // const links
+
+  // if (users === urlUserID){
+    res.render("urls_show", templateVars);
+  // }
+
+  
 });
 
 // Redirects to longURL
@@ -168,10 +174,11 @@ app.post("/urls", (req, res) => {
     longURL, 
     users: usersDB[req.cookies["user_id"]] 
   };
+  console.log(shortURL)
   res.redirect(`/urls/${shortURL}`);
 });
 
-// Adds a delete button and redirects back to /urls page
+// Only owners of the url can delete the url they created
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.cookies["user_id"];
@@ -185,7 +192,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-// Adds an edit button and redirects back to /urls page
+// Only owners of the url can edit the url they created
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const userID = req.cookies["user_id"];
@@ -231,7 +238,7 @@ app.post("/login", (req, res) => {
   } else if (password !== usersDB[user]["password"]) {
     res.status(403).render("error403_index");
   } else {
-    res.cookie("user_id", userID);
+    res.cookie("user_id", user);
     res.redirect("/urls");
   }
 });
