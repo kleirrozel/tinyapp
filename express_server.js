@@ -3,6 +3,16 @@ const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
 
+/* Server start-up */
+app.listen(PORT, () => {
+  console.log(`TinyApp is active on port ${PORT}!`);
+});
+
+/* Landing page */
+app.get("/", (req, res) => {
+  res.redirect("/register");
+});
+
 /* Middleware */
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
@@ -16,15 +26,26 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const usersDB = { 
+// const urlDatabase = {
+//   b6UTxQ: {
+//       longURL: "https://www.tsn.ca",
+//       userID: "aJ48lW"
+//   },
+//   i3BoGr: {
+//       longURL: "https://www.google.ca",
+//       userID: "aJ48lW"
+//   }
+// };
+
+const usersDB = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
@@ -42,46 +63,50 @@ const findUserByEmail = (emailToCheck) => {
   for (let user in usersDB) {
     if (usersDB.hasOwnProperty(user)) {
       if (emailToCheck === usersDB[user]["email"]) {
-      return user;
+        return user;
       }
     }
   }
   return undefined;
 };
 
-/* Server Start-up */
-app.listen(PORT, () => {
-  console.log(`TinyApp is active on port ${PORT}!`);
-});
+/*
+GET: URL Routes
+*/
 
-app.get("/", (req, res) => {
-  res.send("Welcome to TinyApp!");
-});
-
-/* GET URLS */ 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-// Route for urls
+// Route to urls
 app.get("/urls", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     urls: urlDatabase,
     users: usersDB[req.cookies["user_id"]]
   };
   res.render("urls_index", templateVars);
 });
 
-// Route to the form that creates new urls
+// Route to page that creates new urls
 // Note: Needs to be defined before /urls/:id
 app.get("/urls/new", (req, res) => {
-  const templateVars = { users: usersDB[req.cookies["user_id"]] }; 
+  const templateVars = { users: usersDB[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
+// Route to registration page
+app.get("/register", (req, res) => {
+  res.render("registration_index", {users: null});
+});
+
+// Route to new login page
+app.get("/login", (req, res) => {
+  res.render("login_index", {users: null});
+});
+
+/*
+Shorten URL and Redirect to longURL
+*/
+
 // Shortens urls and displays it
 app.get("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL; 
+  const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   const users = usersDB[req.cookies["user_id"]];
   const templateVars = { shortURL, longURL, users};
@@ -90,22 +115,14 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Redirects to longURL
 app.get("/u/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL; 
+  const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 });
 
-// Route for registration page
-app.get("/register", (req, res) => {
-  res.render("registration_index", {users: null});
-});
-
-// Route for new login page
-app.get("/login", (req, res) => {
-  res.render("login_index", {users: null});
-});
-
-/* POST URLS */
+/*
+POST URLS
+*/
 
 // Saves the shortURL-longURL key-value pair to the urlDatabase
 app.post("/urls", (req, res) => {
@@ -116,21 +133,21 @@ app.post("/urls", (req, res) => {
 });
 
 // Adds a delete button and redirects back to /urls page
-app.post("/urls/:shortURL/delete", (req, res) => { 
-  const shortURL = req.params.shortURL; 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect("/urls");
 });
 
 // Adds an edit button and redirects back to /urls page
-app.post("/urls/:id", (req, res) => { 
+app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   urlDatabase[id] = req.body.longURLNew;
   res.redirect("/urls");
 });
 
-/* 
-Register / LOG in / LOG out 
+/*
+POST: Register / Login / Logout
 */
 
 // Registration handler
@@ -139,12 +156,12 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  if (email === '' && password === ''){
-    res.status(400).send(`Oops! Looks like you forgot to include your email and password.`)
+  if (email === '' && password === '') {
+    res.status(400).send(`Oops! Looks like you forgot to include your email and password.`);
   } else if (findUserByEmail(email)) {
-    res.status(400).send(`Oops! Your email is already registered. Please log in instead.`)
+    res.status(400).send(`Oops! Your email is already registered. Please log in instead.`);
   } else {
-  usersDB[userID] = { id: userID, email, password };
+    usersDB[userID] = { id: userID, email, password };
   }
   res.cookie("user_id", userID);
   res.redirect("/urls");
@@ -157,17 +174,17 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   const user = findUserByEmail(email);
   
-  if (!user) { // If a user with that e-mail cannot be found
-    res.status(403).send(`Oops! I can't find your email. Are you sure you're a registered TinyApp user?`)
-  } else if (password !== usersDB[user]['password']) { // Registered but password is wrong
-    res.status(403).send(`Oops! Your password doesn't match our records. Please try again.`)
-  } else { // set user_id cookie with the matching user's random id
+  if (!user) {
+    res.status(403).send(`Oops! I can't find your email. Are you sure you're a registered TinyApp user?`);
+  } else if (password !== usersDB[user]['password']) {
+    res.status(403).send(`Oops! Your password doesn't match our records. Please try again.`);
+  } else {
     res.cookie("user_id", user);
     res.redirect("/urls");
   }
 });
 
-// Logsout handler which clears cookies
+// Logout handler which clears cookies
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
