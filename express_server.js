@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
@@ -141,13 +142,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const users = usersDB[req.cookies["user_id"]];
   const urlUserID = urlDatabase[shortURL].userID;
   const templateVars = { shortURL, longURL, users, urlUserID};
-  // const links
-
-  // if (users === urlUserID){
-    res.render("urls_show", templateVars);
-  // }
-
-  
+  res.render("urls_show", templateVars);
 });
 
 // Redirects to longURL
@@ -174,7 +169,6 @@ app.post("/urls", (req, res) => {
     longURL, 
     users: usersDB[req.cookies["user_id"]] 
   };
-  console.log(shortURL)
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -221,7 +215,10 @@ app.post("/register", (req, res) => {
   } else if (findUserByEmail(email)) {
     res.status(400).render("error400_index");
   } else {
-    usersDB[userID] = { id: userID, email, password };
+    usersDB[userID] = { id: userID, 
+      email, 
+      password: bcrypt.hashSync(password, 10) 
+    };
   }
   res.cookie("user_id", userID);
   res.redirect("/urls");
@@ -232,10 +229,10 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = findUserByEmail(email);
-  
+
   if (!user) {
-    res.status(403).render("error403_index");
-  } else if (password !== usersDB[user]["password"]) {
+    res.status(403).render("error403_index");x
+  } else if (!bcrypt.compareSync(password, usersDB[user]["password"])) {
     res.status(403).render("error403_index");
   } else {
     res.cookie("user_id", user);
