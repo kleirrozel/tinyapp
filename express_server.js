@@ -48,7 +48,6 @@ const usersDB = {
   }
 };
 
-
 /* 
 Functions 
 */
@@ -62,19 +61,31 @@ const generateUserID = () => {
 
 const findUserByEmail = (emailToCheck) => {
   for (let user in usersDB) {
-    if (usersDB.hasOwnProperty(user)) {
-      if (emailToCheck === usersDB[user]["email"]) {
+      if (usersDB[user]["email"] === emailToCheck) {
         return user;
       }
     }
-  }
   return undefined;
+};
+
+const urlsForUser = (id) => { //Returns an object of urls specific to the userID
+  let userURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].users && urlDatabase[shortURL].users.id === id) {
+      userURLs[shortURL] = urlDatabase[shortURL].longURL;
+    }
+  }
+  return userURLs;
 };
 
 /*
 GET: URL Routes
 */
 // Home/landing page
+app.get("/urls.json", (req, res) => {
+  res.json(urlsDatabase);
+});
+
 app.get("/", (req, res) => {
   res.send("Welcome to TinyApp!");
 });
@@ -82,7 +93,8 @@ app.get("/", (req, res) => {
 // Route to urls
 app.get("/urls", (req, res) => {
   const templateVars = {
-    urls: urlDatabase,
+    // urls: urlDatabase,
+    urls: urlsForUser(req.cookies["user_id"]),
     users: usersDB[req.cookies["user_id"]]
   };
   res.render("urls_index", templateVars);
@@ -95,7 +107,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = { 
     users: usersDB[req.cookies["user_id"]] 
   };
-  if (!req.cookies[req.cookies["user_id"]]) {
+  if (!req.cookies["user_id"]) { 
     res.redirect("/login");
   } else {
     res.render("urls_new", templateVars);
@@ -125,19 +137,20 @@ Shorten URL and Redirect to longURL
 // Shortens urls and displays it
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   const users = usersDB[req.cookies["user_id"]];
-  const templateVars = { shortURL, longURL, users};
+  const urlUserID = urlDatabase[shortURL].userID;
+  const templateVars = { shortURL, longURL, users, urlUserID};
   res.render("urls_show", templateVars);
 });
 
 // Redirects to longURL
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
 
   if (longURL === undefined) {
-    res.send(302);
+    res.sendStatus(302);
   } else {
     res.redirect(longURL);
   }
@@ -172,6 +185,7 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
+
 /*
 POST: Register / Login / Logout
 */
@@ -193,7 +207,6 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-
 // Login handler
 app.post("/login", (req, res) => {
   const email = req.body.email;
@@ -202,10 +215,10 @@ app.post("/login", (req, res) => {
   
   if (!user) {
     res.status(403).render("error403_index");
-  } else if (password !== usersDB[user]['password']) {
+  } else if (password !== usersDB[user]["password"]) {
     res.status(403).render("error403_index");
   } else {
-    res.cookie("user_id", user);
+    res.cookie("user_id", userID);
     res.redirect("/urls");
   }
 });
