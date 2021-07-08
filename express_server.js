@@ -3,40 +3,38 @@ const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
 
-/* Server start-up */
+/* 
+Server start-up 
+*/
 app.listen(PORT, () => {
   console.log(`TinyApp is active on port ${PORT}!`);
 });
 
-/* Landing page */
-app.get("/", (req, res) => {
-  res.redirect("/register");
-});
-
-/* Middleware */
+/* 
+Middleware 
+*/
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-/* URL and User Database */
+/* 
+Database 
+*/
+// URL
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+      longURL: "https://www.tsn.ca",
+      userID: "aJ48lW"
+  },
+  i3BoGr: {
+      longURL: "https://www.google.ca",
+      userID: "aJ48lW"
+  }
 };
 
-// const urlDatabase = {
-//   b6UTxQ: {
-//       longURL: "https://www.tsn.ca",
-//       userID: "aJ48lW"
-//   },
-//   i3BoGr: {
-//       longURL: "https://www.google.ca",
-//       userID: "aJ48lW"
-//   }
-// };
-
+// Users
 const usersDB = {
   "userRandomID": {
     id: "userRandomID",
@@ -50,7 +48,10 @@ const usersDB = {
   }
 };
 
-/* Functions */
+
+/* 
+Functions 
+*/
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
@@ -73,6 +74,10 @@ const findUserByEmail = (emailToCheck) => {
 /*
 GET: URL Routes
 */
+// Home/landing page
+app.get("/", (req, res) => {
+  res.send("Welcome to TinyApp!");
+});
 
 // Route to urls
 app.get("/urls", (req, res) => {
@@ -157,9 +162,9 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
 
   if (email === '' && password === '') {
-    res.status(400).send(`Oops! Looks like you forgot to include your email and password.`);
+    res.status(400).render("error400_index");
   } else if (findUserByEmail(email)) {
-    res.status(400).send(`Oops! Your email is already registered. Please log in instead.`);
+    res.status(400).render("error400_index");
   } else {
     usersDB[userID] = { id: userID, email, password };
   }
@@ -175,9 +180,9 @@ app.post("/login", (req, res) => {
   const user = findUserByEmail(email);
   
   if (!user) {
-    res.status(403).send(`Oops! I can't find your email. Are you sure you're a registered TinyApp user?`);
+    res.status(403).render("error403_index");
   } else if (password !== usersDB[user]['password']) {
-    res.status(403).send(`Oops! Your password doesn't match our records. Please try again.`);
+    res.status(403).render("error403_index");
   } else {
     res.cookie("user_id", user);
     res.redirect("/urls");
