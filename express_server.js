@@ -15,6 +15,8 @@ const PORT = 8080;
 
 app.set("view engine", "ejs");
 
+app.use(express.static('images'));
+
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(cookieSession({
@@ -23,13 +25,10 @@ app.use(cookieSession({
 }));
 
 /*
-GET: URL Routes
+GET Routes
 */
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlsDatabase);
-});
-
+// Home page
 app.get("/", (req, res) => {
   res.render("home_index");
 });
@@ -47,10 +46,10 @@ app.get("/urls", (req, res) => {
 // Note: Needs to be defined before /urls/:id
 // If user is logged in, respond with render of urls_new, otherwise, redirect to login
 app.get("/urls/new", (req, res) => {
-  const templateVars = { 
-    users: usersDB[req.session.user_id] 
+  const templateVars = {
+    users: usersDB[req.session.user_id]
   };
-  if (!req.session.user_id) { 
+  if (!req.session.user_id) {
     res.redirect("/login");
   } else {
     res.render("urls_new", templateVars);
@@ -59,23 +58,19 @@ app.get("/urls/new", (req, res) => {
 
 // Route to registration page
 app.get("/register", (req, res) => {
-  const templateVars = { 
-    users: usersDB[req.session.user_id] 
+  const templateVars = {
+    users: usersDB[req.session.user_id]
   };
   res.render("registration_index", templateVars);
 });
 
 // Route to new login page
 app.get("/login", (req, res) => {
-  const templateVars = { 
-    users: usersDB[req.session.user_id] 
+  const templateVars = {
+    users: usersDB[req.session.user_id]
   };
   res.render("login_index", templateVars);
 });
-
-/*
-Shorten URL and Redirect to longURL
-*/
 
 // Shortens urls and displays it
 app.get("/urls/:shortURL", (req, res) => {
@@ -100,16 +95,16 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 /*
-POST URLS
+POST: URLS
 */
 
 // Saves the shortURL-longURL key-value pair to the urlDatabase
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = { 
-    longURL, 
-    users: usersDB[req.session.user_id] 
+  urlDatabase[shortURL] = {
+    longURL,
+    users: usersDB[req.session.user_id]
   };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -157,11 +152,11 @@ app.post("/register", (req, res) => {
   } else if (findUserByEmail(email, usersDB)) {
     return res.status(400).render("error400_index");
   } else {
-    usersDB[userID] = { id: userID, 
-      email, 
-      password: bcrypt.hashSync(password, 10) 
+    usersDB[userID] = { id: userID,
+      email,
+      password: bcrypt.hashSync(password, 10)
     };
-    console.log(usersDB)
+    console.log(usersDB);
   }
   req.session.user_id = userID;
   res.redirect("/urls");
@@ -189,8 +184,8 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-/* 
-Server start-up 
+/*
+Server start-up
 */
 app.listen(PORT, () => {
   console.log(`TinyApp is active on port ${PORT}!`);
