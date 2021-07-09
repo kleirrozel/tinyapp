@@ -13,9 +13,7 @@
       <div class="card-body">
           <h5 class="card-title">TinyURL for: <%= longURL %></h5>
           <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
-
       </div>
-
   </div>
   <!-- Edit link button -->
   <div class="card text-center">
@@ -24,7 +22,6 @@
       Oh no! Looks like you need to <a href="/login" class="alert-link">login</a> before you can do that!
     </div>
     <% } else { %>
-
     <div class="card-header"><h3 class="card-title">Edit</h3>
       <form method="POST" action="/urls/<%= shortURL %>">
         <div style="
