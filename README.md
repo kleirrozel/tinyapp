@@ -16,6 +16,10 @@ My URLs Page: User is Logged Out
 !["My URLs Page: User is Logged Out"](https://github.com/kleirrozel/tinyapp/blob/master/docs/my-urls-logged-out.png?raw=true)
 
 
+Editing Link: User is Logged Out
+!["Editing Link: User is Logged Out"](https://github.com/kleirrozel/tinyapp/blob/master/docs/editing-logged-out.png?raw=true)
+
+
 Edit Link Page
 !["Edit Link Page"](https://github.com/kleirrozel/tinyapp/blob/master/docs/edit-link.png?raw=true)
 
