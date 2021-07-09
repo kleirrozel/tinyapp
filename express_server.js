@@ -31,7 +31,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Welcome to TinyApp!");
+  res.render("home_index");
 });
 
 // Route to urls
@@ -153,9 +153,9 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
 
   if (email === '' && password === '') {
-    res.status(400).render("error400_index");
-  } else if (findUserByEmail(email)) {
-    res.status(400).render("error400_index");
+    return res.status(400).render("error400_index");
+  } else if (findUserByEmail(email, usersDB)) {
+    return res.status(400).render("error400_index");
   } else {
     usersDB[userID] = { id: userID, 
       email, 
@@ -171,12 +171,12 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = findUserByEmail(email);
+  const user = findUserByEmail(email, usersDB);
 
   if (!user) {
-    res.status(403).render("error403_index");
+    return res.status(403).render("error403_index");
   } else if (!bcrypt.compareSync(password, user.password)) {
-    res.status(403).render("error403_index");
+    return res.status(403).render("error403_index");
   } else {
     req.session.user_id = user.id;
     res.redirect("/urls");
