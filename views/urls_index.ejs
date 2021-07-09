@@ -22,12 +22,10 @@
           <th scope="col">Edit</th>
         </tr>
       </thead>
-      <tbody>
         <!--Prompt that users need to login in order to access page-->
         <% if (!users) { %>
-          <div class="alert alert-warning" role="alert">
-            Oh no! Looks like you need to <a href="/login" class="alert-link">login</a> before you can take a look at that!
-          </div>
+        <tbody>
+          <div class="alert alert-warning" role="alert">Oh no! Looks like you need to <a href="/login" class="alert-link">login</a> before you can take a look at that!</div>
         <% } else { %>
         <% for(let url in urls) { %>
           <tr>
@@ -36,24 +34,23 @@
             <td><%= urls[url] %></td>
             <td>
               <form method="POST" action="/urls/<%= url %>/delete">
-                <button type="submit" class="btn btn-outline-danger">
-                  Delete
-                </button>
+                <button type="submit" class="btn btn-outline-danger">Delete</button>
               </form>
             </td>
             <!--Edit Button that links to the Edit Page-->
             <td>
-                <a href="/urls/<%= url %>">
-                  <button type="button" class="btn btn-primary">
-                  Edit
-                  </button>
+              <a href="/urls/<%= url %>">
+                <button type="button" class="btn btn-primary">Edit</button>
                 </a>
             </td>
           </tr>
+          </tbody>
         <% } %>
-        <% } %>
-      </tbody>
+      <% } %>
     </table>
+    <% if (users) { %>
+      <a class="btn btn-outline-primary" href="urls/new" role="button">Add a Link</a>
+    <% } %>
   </main> 
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
