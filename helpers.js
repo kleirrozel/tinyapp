@@ -1,6 +1,6 @@
 const usersDB = {
-  "userRandomID": {
-    id: "userRandomID",
+  "aJ48lW": {
+    id: "aJ48lW",
     email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
@@ -22,7 +22,9 @@ const urlDatabase = {
   }
 };
 
-const findUserByEmail = (emailToCheck) => {
+// TO DO:
+// Refactor your helper function to take in both the users email and the users database. If you don't have a helper function yet, create one now using the example above.
+const findUserByEmail = (emailToCheck, usersDB) => {
   
   for (let userID in usersDB) {
       if (emailToCheck === usersDB[userID].email) {
